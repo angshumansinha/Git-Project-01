@@ -1,14 +1,21 @@
 #crop recommendation app
+#app.py page
 from flask import Flask,render_template,request
+#for api
 import requests
-import config# for using weather api
+import config
+
+from flask_cors import cross_origin
 import numpy as np
 import pickle
 
-#fetch the saVED MODEL
-path=r"C:\Users\angsh\OneDrive\Desktop\Machine Learning Projects\Git Project 01\Models\naivebayes.pkl"
-crop_recommendation_model=pickle.load(path,'rb')
 
+#fetch the saVED MODEL
+crop_recommendation_model=pickle.load(open("App\model.pkl","rb"))
+#creating app object
+app=Flask(__name__)
+
+#using weather api
 def weather_fetch(city_name): #for fetching weather of city 
     """
     Fetch and returns the temperature and humidity of a city
@@ -32,40 +39,31 @@ def weather_fetch(city_name): #for fetching weather of city
         return None
 
 
-#creating app object
-app=Flask(__name__)
 
 @app.route('/')#main web page
 def home():
-    title="Crop Recommender System"
-    render_template('index.html',title=title)
+    return render_template('home.html')
 
-@app.route('/crop_recommend')#render crop recommend page
-def crop_rec():
-    title="Crop Recommender System"
-    render_template('crop.html',title=title)
 
-@app.route('/crop-predict',methods=['POST']) #rendering prediction page
+@app.route('/crop_predict',methods=['GET','POST']) #rendering prediction page
+@cross_origin()
 def crop_predict():
-    title='Crop prediction'
     if request.method=='POST':
         N=int(request.form['Nitrogen'])
         P=int(request.form['Phosphorous'])
         K=int(request.form['Potassium'])
         ph=float(request.form['ph'])
         rainfall = float(request.form['rainfall'])
-        #fetch temperature by city name
-        city=request.form.get('city')
-        if weather_fetch(city)!=None:
-            temp,humidity=weather_fetch(city)
-            data=np.array(([[N, P, K, temp, humidity, ph, rainfall]]))
-            my_prediction = crop_recommendation_model.predict(data)
+        city=str(request.form['city'])
+        if weather_fetch(city) != None:
+            temperature, humidity = weather_fetch(city)
+            my_prediction = crop_recommendation_model.predict([[N, P, K, temperature, humidity, ph, rainfall]])
             final_prediction = my_prediction[0]
-            return render_template('crop-result.html', prediction=final_prediction, title=title)
+            return render_template('predict.html', prediction=final_prediction)
         else:
-             return render_template('try_again.html', title=title)
+            return render_template('try.html')
 
 
 #running the app
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True,port=5500)

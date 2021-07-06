@@ -1,0 +1,18 @@
+<html>
+    <title>Crop Recommendation System</title>
+    <body bgcolor="#5E7B52">
+        <center><h1 style="font-family:'Times New Roman';">Welcome to the Flower Recommendation System</h1><br><br>
+                <form action="{{url_for('crop_predict')}}" method='POST'>
+                    <input type='text' name='Nitrogen' placeholder="Enter Nitrogen"><br><br>
+                    <input type='text' name='Phosphorous' placeholder="Enter Phosphorous"><br><br>
+                    <input type='text' name='Potassium' placeholder="Enter Potassium"><br><br>
+                    <input type='text' name='ph' placeholder="Enter Ph"><br><br>
+                    <input type='text' name='rainfall' placeholder="Enter rainfall"><br><br>
+                    <input type='text' name='city' placeholder="Enter Name of the city"><br><br>
+                    <input type="submit" value="predict">
+                </form>
+        </center>
+        
+
+    </body>
+</html>
